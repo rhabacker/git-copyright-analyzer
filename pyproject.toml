@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2026 Ralf Habacker <ralf.habacker@freenet.de>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+[project]
+name = "git-copyright-analyzer"
+version = "0.1.0"
+description = "Git history analyzer for SPDX copyright attribution"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    "typer>=0.16",
+    "rich>=14",
+]
+
+# use pip install -e ".[dev]"
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[project.scripts]
+gca = "gca.cli:app"
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.format]
+quote-style = "double"

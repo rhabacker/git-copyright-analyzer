@@ -1,0 +1,10 @@
+version = 1
+SPDX-PackageName = "git-copyright-analyzer"
+SPDX-PackageSupplier = "Ralf Habacker <ralf.habacker@freenet.de>"
+SPDX-PackageDownloadLocation = "https://github/rhabacker/git-copyright-analyzer"
+
+[[annotations]]
+path = ".gitignore"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
