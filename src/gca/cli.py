@@ -12,6 +12,7 @@ from .reports import Reports
 from .scanner import Scanner
 
 from .files.cli import app as files_app
+from .headers.cli import app as headers_app
 
 DEFAULT_DATABASE = Path("gca.sqlite")
 
@@ -22,6 +23,10 @@ app.add_typer(
     name="files",
 )
 
+app.add_typer(
+    headers_app,
+    name="headers",
+)
 
 DatabaseOption = Annotated[
     Path,

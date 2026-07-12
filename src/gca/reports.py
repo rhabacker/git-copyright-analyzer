@@ -4,12 +4,14 @@
 
 
 from .files.reports import FilesReports
+from .headers.reports import HeaderReports
 
 
 class Reports:
     def __init__(self, db):
         self.db = db
         self.files = FilesReports(db)
+        self.headers = HeaderReports(db)
 
     def summary(self):
         return {
