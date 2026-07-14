@@ -33,11 +33,13 @@ class Database:
 
     def schema_version(self):
         try:
-            row = self.db.execute("""
+            row = self.db.execute(
+                """
                 SELECT value
                 FROM metadata
                 WHERE key='schema_version'
-            """).fetchone()
+            """
+            ).fetchone()
         except sqlite3.OperationalError:
             # Fresh database: schema has not been initialized yet.
             return None
