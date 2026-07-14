@@ -10,12 +10,20 @@ from .database import Database
 from .reports import Reports
 from .scanner import Scanner
 
+from .company.cli import app as company_app
+from .company.config import CompanyConfig
+from .company.mapper import CompanyMapper
 from .files.cli import app as files_app
 from .headers.cli import app as headers_app
 
 DEFAULT_DATABASE = Path("gca.sqlite")
 
 app = typer.Typer()
+
+app.add_typer(
+    company_app,
+    name="company",
+)
 
 app.add_typer(
     files_app,
@@ -55,8 +63,10 @@ def init(ctx: typer.Context, repository: str):
     """Initialize database."""
 
     db: Database = ctx.obj["db"]
+
     if db.schema_version() is None:
         db.initialize()
+
         db.set_setting("repository_root", str(Path(repository).resolve()))
         db.commit()
         typer.echo("Initialized database.")
@@ -73,6 +83,10 @@ def scan(ctx: typer.Context):
     root = db.get_setting("repository_root")
     scanner = Scanner(root, db)
     scanner.scan()
+
+    config = CompanyConfig.load(Path(root))
+    mapper = CompanyMapper(db, config)
+    mapper.run()
 
 
 @app.command()

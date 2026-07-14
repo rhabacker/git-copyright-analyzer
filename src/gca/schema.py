@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-
+from .company.schema import COMPANY_SCHEMA
 from .files.schema import FILES_SCHEMA
 from .headers.schema import HEADER_SCHEMA
 
@@ -79,6 +79,7 @@ GROUP BY
 SCHEMA = "\n".join(
     [
         REPOSITORY_SCHEMA,
+        COMPANY_SCHEMA,
         FILES_SCHEMA,
         HEADER_SCHEMA,
     ]

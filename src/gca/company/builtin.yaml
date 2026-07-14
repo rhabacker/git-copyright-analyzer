@@ -1,0 +1,30 @@
+companies:
+
+  - id: redhat
+    name: Red Hat
+    spdx_name: Red Hat, Inc.
+    domains:
+      - redhat.com
+
+  - id: qt
+    name: The Qt Company
+    domains:
+      - qt.io
+
+  - id: kde
+    name: KDE e.V.
+    domains:
+      - kde.org
+
+personal_domains:
+  - gmail.com
+  - gmx.com
+  - gmx.de
+  - gmx.net
+  - hotmail.com
+  - icloud.com
+  - live.com
+  - outlook.com
+  - protonmail.com
+  - users.sourceforge.net
+  - yahoo.com
