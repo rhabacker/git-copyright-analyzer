@@ -38,3 +38,24 @@ class GitRepository:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
+
+    def log_all(self):
+        return subprocess.Popen(
+            [
+                "git",
+                "-C",
+                self.path,
+                "log",
+                "--all",
+                "--numstat",
+                "--format="
+                "commit %H%n"
+                "parent %P%n"
+                "author %an%n"
+                "email %ae%n"
+                "time %at%n"
+                "subject %s%n",
+            ],
+            stdout=subprocess.PIPE,
+            text=True,
+        )

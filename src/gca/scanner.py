@@ -2,9 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from .gitlogparser import GitLogParser
 from .gitrepository import GitRepository
+from .gitcommitparser import GitCommitParser
 from .headers.scanner import HeaderScanner
+from .timing import timed_phase
+
 import typer
 
 SCAN_EXCLUDED_PREFIXES = (
@@ -12,37 +14,59 @@ SCAN_EXCLUDED_PREFIXES = (
     ".git/",
 )
 
-
 class Scanner:
     def __init__(self, repo, database):
-        self.git = GitRepository(repo)
         self.db = database
+        self.git = GitRepository(repo)
         self.headers = HeaderScanner(self.db)
 
     def should_scan(self, filename: str) -> bool:
         return not filename.startswith(SCAN_EXCLUDED_PREFIXES)
 
     def scan(self):
+        with timed_phase("Git history import"):
+            self.scan_history()
+
+        with timed_phase("Header scanning"):
+            self.scan_headers()
+
+        with timed_phase("Database commit"):
+            self.db.commit()
+
+    def scan_history(self):
+
+        commits = 0
+        changes = 0
+        proc = self.git.log_all()
+
+        for commit in GitCommitParser(proc.stdout):
+
+            commits += 1
+
+            if self.db.has_commit(commit.hash):
+                continue
+
+            #print(f"Scanning {commit.hash}")
+            self.db.insert_commit(commit)
+
+            for parent in commit.parents:
+                self.db.insert_commit_parent(commit.hash, parent)
+
+            for change in commit.changes:
+                changes += 1
+                self.db.insert_change(change)
+
+        typer.echo(
+            f"History: {commits} commits, "
+            f"{changes} changes"
+        )
+
+    def scan_headers(self):
         for filename in self.git.ls_files():
             if not self.should_scan(filename):
                 continue
-            typer.echo(f"Scanning {filename}")
-            self.scan_file(filename)
 
-        self.db.commit()
+            file_id = self.db.get_or_create_file(filename)
 
-    def scan_file(self, filename):
-        file_id = self.db.get_or_create_file(filename)
-
-        self.headers.scan(filename, file_id)
-
-        proc = self.git.log(filename)
-
-        last = None
-        for record in GitLogParser(proc.stdout):
-            last = record.commit
-            self.db.insert_commit(record)
-            self.db.insert_change(file_id, record)
-
-        if last:
-            self.db.update_last_commit(file_id, last)
+            #print(f"Scanning header in {filename}")
+            self.headers.scan(filename, file_id)

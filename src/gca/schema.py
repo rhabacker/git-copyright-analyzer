@@ -26,6 +26,19 @@ CREATE TABLE commits (
     subject TEXT
 );
 
+CREATE TABLE commit_parents (
+    commit_hash TEXT NOT NULL,
+    parent_hash TEXT NOT NULL,
+
+    PRIMARY KEY(
+        commit_hash,
+        parent_hash
+    ),
+
+    FOREIGN KEY(commit_hash)
+        REFERENCES commits(hash)
+);
+
 CREATE TABLE metadata (
     key TEXT PRIMARY KEY,
     value TEXT
