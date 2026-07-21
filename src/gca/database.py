@@ -59,6 +59,11 @@ class Database:
                 "Please recreate the database with 'gca init'."
             )
 
+    def get_commit_hashes(self) -> set[str]:
+        cursor = self.db.execute("SELECT hash FROM commits")
+
+        return {row[0] for row in cursor}
+
     def get_setting(self, key: str) -> str | None:
         row = self.execute(
             "SELECT value FROM settings WHERE key = ?",
@@ -97,7 +102,19 @@ class Database:
 
         return cursor.lastrowid
 
-    def insert_commit(self, record):
+    def has_commit(self, commit_hash):
+        row = self.execute(
+            """
+            SELECT 1
+            FROM commits
+            WHERE hash=?
+            """,
+            (commit_hash,),
+        ).fetchone()
+
+        return row is not None
+
+    def insert_commit(self, commit):
         self.execute(
             """
             INSERT OR IGNORE INTO commits(
@@ -110,15 +127,32 @@ class Database:
             VALUES (?, ?, ?, ?, ?)
             """,
             (
-                record.commit,
-                record.author,
-                record.email,
-                record.timestamp,
-                record.subject,
+                commit.hash,
+                commit.author,
+                commit.email,
+                commit.timestamp,
+                commit.subject,
             ),
         )
 
-    def insert_change(self, file_id, record):
+    def insert_commit_parent(self, commit_hash, parent_hash):
+        self.execute(
+            """
+            INSERT OR IGNORE INTO commit_parents(
+                commit_hash,
+                parent_hash
+            )
+            VALUES (?,?)
+            """,
+            (
+                commit_hash,
+                parent_hash,
+            ),
+        )
+
+    def insert_change(self, change):
+        file_id = self.get_or_create_file(change.path)
+
         self.execute(
             """
             INSERT OR IGNORE INTO changes(
@@ -132,10 +166,10 @@ class Database:
             """,
             (
                 file_id,
-                record.commit,
-                record.additions,
-                record.deletions,
-                record.patch,
+                change.commit_hash,
+                change.additions,
+                change.deletions,
+                change.patch,
             ),
         )
 

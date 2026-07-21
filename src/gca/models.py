@@ -33,3 +33,29 @@ class CommitRecord:
 
     def finish(self, patch_lines: list[str]) -> None:
         self.patch = "".join(patch_lines)
+
+
+@dataclass
+class HistoryStatistics:
+    commits_scanned: int = 0
+    commits_imported: int = 0
+    changes_imported: int = 0
+    parents_imported: int = 0
+    elapsed: float = 0.0
+
+
+@dataclass
+class HeaderStatistics:
+    files_ignored: int = 0
+    files_scanned: int = 0
+    headers_found: int = 0
+    spdx_headers: int = 0
+    elapsed: float = 0.0
+
+
+@dataclass
+class ScanStatistics:
+    history: HistoryStatistics
+    headers: HeaderStatistics
+    db_commit_time: float = 0.0
+    total_elapsed: float = 0.0

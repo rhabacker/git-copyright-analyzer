@@ -83,7 +83,33 @@ def scan(ctx: typer.Context):
     db: Database = ctx.obj["db"]
     root = db.get_setting("repository_root")
     scanner = Scanner(root, db)
-    scanner.scan()
+    stats = scanner.scan()
+
+    typer.echo("Git history")
+    typer.echo(f"  Commits checked  : {stats.history.commits_scanned:,}")
+    typer.echo(f"  Commits imported : {stats.history.commits_imported:,}")
+    typer.echo(f"  File changes     : {stats.history.changes_imported:,}")
+    typer.echo(f"  Parents          : {stats.history.parents_imported:,}")
+    typer.echo(f"  Time             : {stats.history.elapsed:.2f}s")
+
+    typer.echo()
+    typer.echo("Headers")
+    typer.echo(f"  Files scanned    : {stats.headers.files_scanned:,}")
+    typer.echo(f"  Files ignored    : {stats.headers.files_ignored:,}")
+    typer.echo(f"  Headers found    : {stats.headers.headers_found:,}")
+    # not parsed
+    # typer.echo(f"  SPDX headers     : {stats.headers.spdx_headers:,}")
+    typer.echo(f"  Time             : {stats.headers.elapsed:.2f}s")
+
+    typer.echo()
+    typer.echo("Database")
+    typer.echo(f"  Commit           : {stats.db_commit_time:.2f}s")
+
+    typer.echo()
+    typer.secho(
+        f"✓ Scan completed in {stats.total_elapsed:.2f}s",
+        fg=typer.colors.GREEN,
+    )
 
     config = CompanyConfig.load(Path(root))
     mapper = CompanyMapper(db, config)
