@@ -122,3 +122,8 @@ class GitRepository:
             yield line.rstrip("\n")
 
         process.wait()
+
+    def wait_finished(self, proc):
+        rc = proc.wait()
+        if rc != 0:
+            raise RuntimeError("git log failed")

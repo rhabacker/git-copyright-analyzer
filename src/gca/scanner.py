@@ -36,7 +36,7 @@ class Scanner:
             history=history,
             headers=headers,
             db_commit_time=db_commit_time,
-            total_elapsed=(history.elapsed + history.elapsed + db_commit_time),
+            total_elapsed=(history.elapsed + headers.elapsed + db_commit_time),
         )
 
     def scan_history(self) -> HistoryStatistics:
@@ -44,9 +44,15 @@ class Scanner:
 
         start = time.perf_counter()
 
-        #
-        # Phase 1: discover missing commits
-        #
+        missing = self.find_missing_commits(stats)
+
+        if missing:
+            self.import_missing_commits(missing, stats)  #
+
+        stats.elapsed = time.perf_counter() - start
+        return stats
+
+    def find_missing_commits(self, stats):
         missing: list[str] = []
 
         total = self.git.commit_count()
@@ -75,26 +81,21 @@ class Scanner:
 
                 missing.append(commit_hash)
 
-        #
-        # Nothing to do
-        #
-        if not missing:
-            stats.elapsed = time.perf_counter() - start
-            return stats
+        return missing
 
-        #
-        # Phase 2: Import commits
-        #
+    def import_missing_commits(self, missing, stats):
+        missing_count = len(missing)
+
         with Progress() as progress:
             task = progress.add_task(
                 "[cyan]Importing commits ",
-                total=len(missing),
+                total=missing_count,
             )
 
             #
             # First import?
             #
-            if len(missing) == stats.commits_scanned:
+            if missing_count == stats.commits_scanned:
                 proc = self.git.log_all()
 
             else:
@@ -102,37 +103,22 @@ class Scanner:
 
             parser = GitCommitParser(proc.stdout)
 
-            imported_now = 0
-
             for commit in parser:
-                imported_now += 1
+                self.db.insert_commit_tree(commit)
 
+                stats.parents_imported += len(commit.parents)
+                stats.changes_imported += len(commit.changes)
                 stats.commits_imported += 1
-
-                self.db.insert_commit(commit)
-
-                for parent in commit.parents:
-                    self.db.insert_commit_parent(
-                        commit.hash,
-                        parent,
-                    )
-                    stats.parents_imported += 1
-
-                for change in commit.changes:
-                    self.db.insert_change(change)
-                    stats.changes_imported += 1
 
                 progress.advance(task)
                 progress.update(
                     task,
                     description=(
-                        f"[cyan]Importing commits ({imported_now:,}/{len(missing):,})"
+                        f"[cyan]Importing commits ({stats.commits_imported:,}/{missing_count:,})"
                     ),
                 )
 
-            proc.wait()
-
-        stats.elapsed = time.perf_counter() - start
+            self.git.wait_finished(proc)
 
         return stats
 
@@ -143,10 +129,12 @@ class Scanner:
 
         start = time.perf_counter()
 
+        files_count = len(files)
+
         with Progress() as progress:
             task = progress.add_task(
                 "Scanning headers ",
-                total=len(files),
+                total=files_count,
             )
 
             for filename in files:
@@ -156,7 +144,7 @@ class Scanner:
                 progress.update(
                     task,
                     description=(
-                        f"Scanning headers ({stats.files_scanned:,}/{len(files):,})"
+                        f"Scanning headers ({stats.files_scanned:,}/{files_count:,})"
                     ),
                 )
 

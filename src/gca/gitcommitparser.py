@@ -6,7 +6,6 @@ class GitCommitParser:
         self.stream = stream
 
     def _number(self, value):
-
         if value == "-":
             return 0
 
@@ -51,7 +50,6 @@ class GitCommitParser:
                 parts = line.split("\t")
 
                 if len(parts) == 3:
-
                     additions, deletions, path = parts
 
                     current.changes.append(

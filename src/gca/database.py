@@ -173,6 +173,18 @@ class Database:
             ),
         )
 
+    def insert_commit_tree(self, commit):
+        self.insert_commit(commit)
+
+        for parent in commit.parents:
+            self.insert_commit_parent(
+                commit.hash,
+                parent,
+            )
+
+        for change in commit.changes:
+            self.insert_change(change)
+
     def update_last_commit(self, file_id, commit):
         self.execute(
             """
