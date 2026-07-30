@@ -17,11 +17,20 @@ class CompanyRepository:
     def __init__(self, db: Database):
         self.db = db
 
-    def import_config(self, config: CompanyConfig) -> None:
+    def import_config(
+        self,
+        config: CompanyConfig,
+    ) -> int:
+
+        count = 0
+
         for company in config.companies():
             self.insert_company(company)
+            count += 1
 
         self.db.commit()
+
+        return count
 
     #
     # Company reference data

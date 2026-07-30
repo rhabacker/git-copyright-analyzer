@@ -209,10 +209,20 @@ def import_companies(ctx: typer.Context) -> None:
 
     cfg = CompanyConfig.load(Path(root))
 
-    repo = CompanyRepository(db)
-    repo.import_config(cfg)
+    for warning in cfg.warnings():
+        typer.secho(
+            f"Warning: {warning}",
+            fg=typer.colors.YELLOW,
+        )
 
-    typer.echo(f"Imported {len(list(cfg.companies()))} companies.")
+    repo = CompanyRepository(db)
+
+    imported = repo.import_config(cfg)
+
+    typer.echo(f"Imported {imported} companies.")
+
+    if cfg.warnings():
+        typer.echo(f"Skipped {len(cfg.warnings())} incomplete definitions.")
 
 
 @app.command("map")

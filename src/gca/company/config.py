@@ -19,6 +19,11 @@ class CompanyConfig:
         self._domains: dict[str, CompanyDefinition] = {}
         self._personal_domains: set[str] = set()
 
+        self._warnings: list[str] = []
+
+    def warnings(self) -> list[str]:
+        return self._warnings
+
     @classmethod
     def load(cls, repository: Path | None = None) -> "CompanyConfig":
         cfg = cls()
@@ -52,29 +57,31 @@ class CompanyConfig:
             data = yaml.safe_load(fp) or {}
 
         for entry in data.get("companies", []):
-            company_id = entry.get("id")
+            company_id = str(entry.get("id", "")).strip()
             if not company_id:
-                raise ValueError(f"Missing company id: {entry}")
+                self._warnings.append("Ignoring company without 'id'.")
+                continue
 
             name = entry.get("name")
             if not name:
-                raise ValueError(f"Company '{company_id}' is missing 'name'")
+                self._warnings.append(
+                    f"Company '{company_id}' is incomplete (missing 'name')."
+                )
+                continue
 
             domains = entry.get("domains")
             if not domains:
-                raise ValueError(f"Company '{company_id}' has no domains")
+                self._warnings.append(f"Company '{company_id}' has no domains.")
+                continue
 
             company = CompanyDefinition(
-                id=entry["id"],
-                name=entry["name"],
-                spdx_name=entry.get("spdx_name", entry["name"]),
-                domains=list(entry.get("domains", [])),
+                id=company_id,
+                name=name,
+                spdx_name=entry.get("spdx_name") or name,
+                domains=list(domains),
             )
 
-            self._companies[company.name] = company
+            self._companies[company.id] = company
 
             for domain in company.domains:
                 self._domains[domain.lower()] = company
-
-        for domain in data.get("personal_domains", []):
-            self._personal_domains.add(domain.lower())
