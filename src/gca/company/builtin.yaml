@@ -1,22 +1,122 @@
 companies:
 
-  - id: redhat
-    name: Red Hat
-    spdx_name: Red Hat, Inc.
+  - id: canonical
+    name: Canonical
+    spdx_name: Canonical Ltd.
     domains:
-      - redhat.com
+      - canonical.com
 
-  - id: qt
-    name: The Qt Company
+  - id: codefactory
+    name: Code Factory
+    spdx_name: Code Factory AB
     domains:
-      - qt.io
+      - codefactory.se
 
-  - id: kde
-    name: KDE e.V.
+  - id: collabora
+    name: Collabora
+    spdx_name: Collabora Ltd.
     domains:
-      - kde.org
+      - collabora.co.uk
+      - collabora.com
 
-personal_domains:
+  - id: debian
+    name: Debian
+    spdx_name: Software in the Public Interest, Inc.
+    domains:
+      - debian.org
+
+  - id: garmin
+    name: Garmin
+    spdx_name: Garmin Ltd.
+    domains:
+      - garmin.com
+
+  - id: gnome
+    name: GNOME
+    spdx_name: GNOME Foundation
+    domains:
+      - gnome.org
+
+  - id: google
+    name: Google
+    spdx_name: Google LLC
+    domains:
+      - google.com
+
+  - id: huawei
+    name: Huawei
+    spdx_name: Huawei Technologies Co., Ltd.
+    domains:
+      - huawei.com
+
+  - id: imendio
+    name: Imendio
+    spdx_name: Imendio AB
+    domains:
+      - imendio.com
+
+  - id: intel
+    name: Intel
+    spdx_name: Intel Corporation
+    domains:
+      - intel.com
+
+  - id: kdab
+    name: KDAB
+    spdx_name: KDAB Group AG
+    domains:
+      - kdab.com
+      - kdab.net
+
+  - id: nokia
+    name: Nokia
+    spdx_name: Nokia Corporation
+    domains:
+      - nokia.com
+
+  - id: novell
+    name: Novell
+    spdx_name: Novell, Inc.
+    domains:
+      - novell.com
+
+  - id: oracle
+    name: Oracle
+    spdx_name: Oracle and/or its affiliates
+    domains:
+      - oracle.com
+
+  - id: samsung
+    name: Samsung
+    spdx_name: Samsung Electronics Co., Ltd.
+    domains:
+      - samsung.com
+
+  - id: tycho
+    name: Tycho
+    spdx_name: National Security Agency
+    domains:
+      - tycho.nsa.gov
+
+  - id: ubuntu
+    name: Ubuntu
+    spdx_name: Canonical Ltd.
+    domains:
+      - ubuntu.com
+
+  - id: ximian
+    name: Ximian
+    spdx_name: Ximian, Inc.
+    domains:
+      - ximian.com
+
+  - id: yandex
+    name: Yandex
+    spdx_name: Yandex LLC
+    domains:
+      - yandex.ru
+
+-personal_domains:
   - gmail.com
   - gmx.com
   - gmx.de
