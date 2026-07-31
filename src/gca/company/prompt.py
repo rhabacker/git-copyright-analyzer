@@ -31,6 +31,10 @@ class CompanyPromptGenerator:
                 "    spdx_name:",
                 "    domains:",
                 "",
+                "personal_domains:",
+                "  - domain"
+                "",
+                "",
                 "Rules:",
                 "",
                 "- Group multiple domains belonging to the same company.",
