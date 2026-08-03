@@ -81,7 +81,9 @@ class CompanyConfig:
                 domains=list(domains),
             )
 
-            self._companies[company.id] = company
+            if company.name in self._companies:
+                print(f"Company '{company_id}' already defined, will be overwritten")
+            self._companies[company.name] = company
 
             for domain in company.domains:
                 self._domains[domain.lower()] = company
