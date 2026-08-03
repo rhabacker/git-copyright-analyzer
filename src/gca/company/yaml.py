@@ -19,8 +19,8 @@ class CompanyYamlGenerator:
 
         companies: dict[str, list[str]] = defaultdict(list)
 
-        for row, status, _, recommend in rows:
-            if recommend != "add company":
+        for row, status, _, _ in rows:
+            if status != "unknown":
                 continue
 
             company_id = suggested_company_id(row["domain"])
