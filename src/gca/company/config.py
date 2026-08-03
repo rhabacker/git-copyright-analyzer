@@ -31,9 +31,9 @@ class CompanyConfig:
         cfg._load_yaml(files(__package__).joinpath("builtin.yaml"))
 
         if repository is not None:
-            local = repository / ".gca" / "company.yaml"
-            if local.exists():
-                cfg._load_yaml(local)
+            local_dir = repository / ".gca"
+            for path in sorted(local_dir.glob("company*.yaml")):
+                cfg._load_yaml(path)
 
         return cfg
 
