@@ -5,90 +5,51 @@
 from .company import suggested_company_id
 from .config import CompanyConfig
 
+import typer
 
 class CompanyPromptGenerator:
-    def generate(
-        self,
-        config: CompanyConfig,
-        rows: list[tuple],
-    ) -> str:
-        """Generate a prompt for an AI assistant."""
+    """Generate an AI prompt for completing company.yaml."""
 
-        lines = []
+    def generate(self, config, rows) -> str:
+        lines: list[str] = []
 
         lines.extend(
             [
-                "Determine the legal company names for the following email domains.",
+                "The following YAML contains company domains that could not be identified automatically.",
                 "",
-                "Return YAML only.",
+                "Task:",
                 "",
-                "Use the following format:",
-                "",
-                "companies:",
-                "",
-                "  - id:",
-                "    name:",
-                "    spdx_name:",
-                "    domains:",
-                "",
-                "personal_domains:",
-                "  - domain"
-                "",
-                "",
-                "Rules:",
-                "",
-                "- Group multiple domains belonging to the same company.",
-                "- Use the official legal company name.",
-                "- Use the SPDX copyright holder name if it differs.",
-                "- Preserve existing company ids.",
-                "- Return valid YAML only.",
-                "",
-                "Current configuration:",
+                "- Determine whether each domain belongs to a company or organization.",
+                "- If it does, fill in id, name and spdx_name.",
+                "- Do not modify the domains list.",
+                "- Use a stable company identifier for id (for example 'microsoft', not 'linux').",
+                "- Prefer the legal company name.",
+                "- Use the SPDX copyright holder name when known.",
+                "- If you are not confident, leave the fields empty.",
+                "- Do not invent information.",
+                "- Return ONLY the completed YAML document.",
                 "",
                 "companies:",
                 "",
             ]
         )
 
-        for company in sorted(config.companies(), key=lambda c: c.id):
-            lines.append(f"  - id: {company.id}")
-            lines.append(f"    name: {company.name}")
-            lines.append(f"    spdx_name: {company.spdx_name}")
-            lines.append("    domains:")
-
-            for domain in sorted(company.domains):
-                lines.append(f"      - {domain}")
-
-            lines.append("")
-
-        lines.extend(
-            [
-                "Add the following companies:",
-                "",
-                "companies:",
-                "",
-            ]
-        )
-
-        from collections import defaultdict
-
-        companies = defaultdict(list)
-
-        for row, status, _, recommend in rows:
-            if recommend != "add company":
+        for row, status, _, _ in rows:
+            if status != "unknown":
                 continue
 
-            companies[suggested_company_id(row["domain"])].append(row["domain"])
+            lines.append(f"  # commits: {row['commits']}")
+            lines.append(f"  # authors: {row['authors']}")
+            lines.append(
+                f"  # example: {row['example_author']} <{row['example_email']}>"
+            )
 
-        for company_id in sorted(companies):
-            lines.append(f"  - id: {company_id}")
+            lines.append("  - id:")
             lines.append("    name:")
             lines.append("    spdx_name:")
             lines.append("    domains:")
-
-            for domain in sorted(companies[company_id]):
-                lines.append(f"      - {domain}")
-
+            lines.append(f"      - {row['domain']}")
             lines.append("")
 
-        return "\n".join(lines)
+        typer.echo("\n".join(lines))
+        return
